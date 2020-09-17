@@ -26,8 +26,8 @@ class Geode {
       val λ2 = toRadians(destination.second)
       val Δλ = λ2 - λ1
 
-      val y = sin(Δλ) * cos(φ2)
       val x = cos(φ1) * sin(φ2) - sin(φ1) * cos(φ2) * cos(Δλ)
+      val y = sin(Δλ) * cos(φ2)
       val θ = atan2(y, x)
 
       return (toDegrees(θ) + 360.0) % 360.0 // Normalize degrees
@@ -35,7 +35,7 @@ class Geode {
 
     fun finalBearing(origin: Pair<Double,Double>, destination: Pair<Double,Double>): Double {
       val θ = initialBearing(destination, origin)
-      return (θ + 180.0) % 180.0
+      return (θ + 180.0) % 360.0
     }
 
     fun intermediatePoint(origin: Pair<Double,Double>, destination: Pair<Double,Double>, percent: Double): Pair<Double,Double> {
@@ -64,10 +64,11 @@ class Geode {
     fun destination(origin: Pair<Double,Double>, bearing: Double, distance: Double): Pair<Double,Double> {
       val φ1 = toRadians(origin.first)
       val λ1 = toRadians(origin.second)
-      val percent = distance / RADIUS_OF_EARTH
+      val θ = toRadians(bearing)
+      val δ = distance / RADIUS_OF_EARTH
 
-      val φ2 = sin(φ1) * cos(percent) + cos(φ1) * sin(percent) * cos(bearing)
-      val λ2 = λ1 + atan2(sin(bearing) * sin(percent) * cos(φ1), cos(percent) - sin(φ1) * sin(φ2))
+      val φ2 = asin(sin(φ1) * cos(δ) + cos(φ1) * sin(δ) * cos(θ))
+      val λ2 = λ1 + atan2(sin(θ) * sin(δ) * cos(φ1), cos(δ) - sin(φ1) * sin(φ2))
 
       val normalizedΛ2 = (toDegrees(λ2) + 540) % 360 - 180
 
